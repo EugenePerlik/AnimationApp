@@ -1,6 +1,6 @@
 //
 //  UIButtonExtension.swift
-//  AnimationApp
+//  Keyframe Animation
 //
 //  Created by  Apple24 on 12/02/2019.
 //  Copyright © 2019  Apple24. All rights reserved.
@@ -8,7 +8,7 @@
 //    sender.pulsate()  // пульсар
 //    sender.flash()    // мигает
 //    sender.shake()    // дребезжит
-//    13.02.19 / promo
+//    13.02.19 / promo / ReadMe
 
 
 import UIKit
