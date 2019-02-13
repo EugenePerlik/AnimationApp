@@ -8,7 +8,7 @@
 //    sender.pulsate()  // пульсар
 //    sender.flash()    // мигает
 //    sender.shake()    // дребезжит
-
+//    13.02.19 / promo
 
 
 import UIKit
