@@ -11,127 +11,87 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
-    
-    @IBOutlet weak var centerX: NSLayoutConstraint!
-    
+    @IBOutlet weak var contX: NSLayoutConstraint!
     @IBOutlet var animationView: UIView!
     @IBOutlet var animationButton: UIButton!
     @IBOutlet var labelOnView: UILabel!
-    @IBOutlet var button: UIButton!
+    @IBOutlet weak var leftButton: UIButton!
     
-    
+    var isPosition = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // по центру и не зависит от констрейна
-        let animator = UIViewPropertyAnimator(duration: 5, curve: .easeInOut) {
-            self.button.center.x = 50
-            self.button.center.y = 50
-        }
-        
-        
-        self.animationView.center = CGPoint(x: view.frame.width / 2, y: view.frame.height / 2 )
-        
-        
         animationButton.layer.cornerRadius = 10
         animationView.layer.cornerRadius = 10
+    }
+    
+    @IBAction func leftButtonPresses(_ sender: UIButton) {
+        let bounds: CGRect = UIScreen.main.bounds
+        let width:CGFloat = bounds.size.width
+        let height:CGFloat = bounds.size.height
         
-        UIView.animate(withDuration: 3,                       // время
+
+        //      пульсар
+        sender.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+        
+        UIView.animate(withDuration: 2.0,
+                       delay: 0,
+                       usingSpringWithDamping: CGFloat(0.20),
+                       initialSpringVelocity: CGFloat(6.0),
+                       options: UIView.AnimationOptions.allowUserInteraction,
+                       animations: {
+                        sender.transform = CGAffineTransform.identity
+        })
+        
+        if isPosition {
+            
+            UIView.animate(withDuration: 0.7, delay: 0.2, options: .curveEaseOut, animations: {
+                var leftFrame = CGRect(x: 0, y: 0, width: width - width / 7 , height: height)
+                leftFrame.origin.x += 0
+                self.contX.constant += width - (width / 7)
+                self.imageView.frame = leftFrame
+                
+            })
+            self.isPosition = !self.isPosition
+            
+        } else {
+            
+            UIView.animate(withDuration: 2, delay: 0.2, options: .curveEaseIn, animations: {
+                var leftFrame = CGRect(x: 0, y: 18, width: 0 , height: height)
+                leftFrame.origin.x -= 0
+                self.imageView.frame = leftFrame
+                
+            }, completion: { _ in
+                self.contX.constant = 0         // По окончании
+            })
+            self.isPosition = !self.isPosition
+        }
+    }
+    
+    @IBAction func runAnimationButton(_ sender: UIButton) {
+        
+        //    sender.flash()    // мигает
+        //    sender.shake()    // дребезжит
+        sender.pulsate()        // пульсар
+                
+        UIView.animate(withDuration: 2,                               // время
             animations: {                                     // что происходит
-                self.animationView.center.x = 50
-                self.animationButton.backgroundColor = .green
+                self.labelOnView.backgroundColor = #colorLiteral(red: 0.7032769322, green: 0.4804401994, blue: 0.5014742613, alpha: 1)
+                self.labelOnView.layer.masksToBounds = true
+                self.labelOnView.layer.cornerRadius = 10
+                self.animationButton.backgroundColor = #colorLiteral(red: 0.2745098174, green: 1, blue: 0, alpha: 1)
+                self.animationView.transform = CGAffineTransform(rotationAngle: .pi / 2 )  // вращение
         }) { flag in                                          // По окончании
-            print(flag)
             if flag {
-                UIView.animate(withDuration: 3, animations: {
-                    self.animationButton.backgroundColor = .orange
+                UIView.animate(withDuration: 2, animations: {
+                    self.labelOnView.backgroundColor = #colorLiteral(red: 0.7024293664, green: 0.4835062623, blue: 0.5, alpha: 1)
+                    self.labelOnView.layer.cornerRadius = 10
+                    self.animationView.transform = CGAffineTransform(rotationAngle: -.pi )  // вращение
+                    self.animationButton.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 0, alpha: 1)
                 })
             }
         }
-        
-        animator.startAnimation()
-        
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 5, delay: 0, options: [.autoreverse], animations: {
-            self.button.transform = CGAffineTransform(rotationAngle: .pi / 2)  // вращение
-            //  один   self.button.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)   // масштабирование
-        }) { position in
-            print(#function, position)
-            self.button.transform = CGAffineTransform.identity
-        }
-        
-        let roundAnimator = UIViewPropertyAnimator(duration: 5, curve: .easeInOut) {
-            self.button.layer.cornerRadius = 100
-        }
-        roundAnimator.startAnimation()
-        
-        
-        
-        let start = self.imageView.center
-        
-        UIView.animateKeyframes(withDuration: 5, delay: 0, options: .calculationModeCubic, animations: {
-            UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.25) {
-                self.imageView.transform = CGAffineTransform(scaleX: 2, y: 2)
-            }
-            
-            UIView.addKeyframe(withRelativeStartTime: 0.25, relativeDuration: 0.25) {
-                self.imageView.center = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.maxY)
-            }
-            
-            UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.25) {
-                self.imageView.center = CGPoint(x: self.view.bounds.width, y: start.y)
-            }
-            
-            UIView.addKeyframe(withRelativeStartTime: 0.75, relativeDuration: 0.25) {
-                self.imageView.center = start
-            }
-        })
-        
     }
-
- 
     
-    
-    
-     @IBAction func runAnimationButton(_ sender: UIButton) {
-        
-        // задержать старт
-//        UIView.animateKeyframes(withDuration: 2,       // 2 cek
-//            delay: 0.5,                                // задержка
-//            options: [.autoreverse, .repeat ], // масиив с параметрами анимации
-//            animations: {
-//                self.animationView.frame.origin.x -= 20
-//        })
-
-        /*
-        UIView.animate(withDuration: 5,              // 5 cek
-            delay: 3,                                // задержка
-            options: [.curveLinear, .autoreverse ],       // масиив с параметрами анимации  //.autoreverse повтор
-            animations: {                            // что происходит
-                self.animationView.frame.origin.x -= 20
-                self.animationView.alpha = 0
-        }, completion: { _ in
-                self.animationView.alpha = 1           // По окончании
-        })
-        */
-        
-        view.layoutIfNeeded()
-        centerX.constant = 100
-        
-        UIView.animate(withDuration: 5,                // общее время
-                       delay: 0,                       // задержка
-                       usingSpringWithDamping: 0.2,    // использование пружины с демпфированием
-                       initialSpringVelocity: 0,       //начальная скорость пружины
-                       options: [.autoreverse],                    // масиив с параметрами анимации
-        animations: {
-            self.view.layoutIfNeeded()
-        },completion: { _ in
-            self.centerX.constant = 0                  // констрейн
-        })
-        
-        
-        
-        
-     }
-
 }
